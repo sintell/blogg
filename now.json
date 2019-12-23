@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "name": "blogg",
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "now-sapper"
+    },
+    {
+      "src": "src/image.js",
+      "use": "@now/node"
+    }
+  ]
+}

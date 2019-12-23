@@ -1,11 +1,11 @@
 <script>
-  const date = new Date()
-  let hello = ''
+  const date = new Date();
+  let hello = '';
 
   if (date.getHours() > 8 && date.getHours() < 18) {
-    hello = 'Have a good day!'
+    hello = 'Have a good day!';
   } else {
-    hello = 'Have a good night!'
+    hello = 'Have a good night!';
   }
 </script>
 
@@ -228,5 +228,8 @@
     <p class="nickname glitch" data-text="antky">antky</p>
     <p class="name">Aleksei Anatskii</p>
     <p class="greeting">{hello}</p>
+    <p>
+      <a href="/blog" rel="prefetch">Blog</a>
+    </p>
   </div>
 </div>

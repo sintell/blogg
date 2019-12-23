@@ -1,24 +1,20 @@
-import fetch from "isomorphic-unfetch";
+import fetch from 'isomorphic-unfetch';
 
-const PAGE_ID = "1a86e7f6-d6a5-4537-a2e5-15650c1888b8";
+const PAGE_ID = '8e42a85e-df33-4e21-b767-08185a8964f6';
 
 export default async function getNotionData() {
   const data = await loadPageChunk({ pageId: PAGE_ID });
+  console.log(JSON.stringify(data));
   const blocks = values(data.recordMap.block);
 
   const sections = [];
   let meta = {};
-
   let currentSection = null;
 
   for (const block of blocks) {
     const value = block.value;
 
-    if (
-      value.type === "page" ||
-      value.type === "header" ||
-      value.type === "sub_header"
-    ) {
+    if (value.type === 'page' || value.type === 'header' || value.type === 'sub_header') {
       sections.push({ title: value.properties.title, children: [] });
       continue;
     }
@@ -26,41 +22,41 @@ export default async function getNotionData() {
     const section = sections[sections.length - 1];
     let list = null;
 
-    if (value.type === "image") {
+    if (value.type === 'image') {
       list = null;
       const child = {
-        type: "image",
-        src: `/image.js?url=${encodeURIComponent(value.format.display_source)}`
+        type: 'image',
+        src: `/image.js?url=${encodeURIComponent(value.format.display_source)}`,
       };
       section.children.push(child);
-    } else if (value.type === "text") {
+    } else if (value.type === 'text') {
       list = null;
       if (value.properties) {
         section.children.push({
-          type: "text",
-          value: value.properties.title
+          type: 'text',
+          value: value.properties.title,
         });
       }
-    } else if (value.type === "bulleted_list") {
+    } else if (value.type === 'bulleted_list') {
       if (list == null) {
         list = {
-          type: "list",
-          children: []
+          type: 'list',
+          children: [],
         };
         section.children.push(list);
       }
       list.children.push(value.properties.title);
-    } else if (value.type === "collection_view") {
+    } else if (value.type === 'collection_view') {
       const col = await queryCollection({
         collectionId: value.collection_id,
-        collectionViewId: value.view_ids[0]
+        collectionViewId: value.view_ids[0],
       });
       const table = {};
       const entries = values(col.recordMap.block).filter(
         block => block.value && block.value.parent_id === value.collection_id
       );
       for (const entry of entries) {
-      	if (entry.value.properties) {
+        if (entry.value.properties) {
           const props = entry.value.properties;
 
           // I wonder what `Agd&` is? it seems to be a fixed property
@@ -69,22 +65,22 @@ export default async function getNotionData() {
             props.title[0][0]
               .toLowerCase()
               .trim()
-              .replace(/[ -_]+/, "_")
-          ] = props["Agd&"];
+              .replace(/[ -_]+/, '_')
+          ] = props['Agd&'];
         }
 
         if (sections.length === 1) {
           meta = table;
         } else {
           section.children.push({
-            type: "table",
-            value: table
+            type: 'table',
+            value: table,
           });
         }
       }
     } else {
       list = null;
-      console.log("UNHANDLED", value);
+      console.log('UNHANDLED', value);
     }
   }
 
@@ -93,27 +89,28 @@ export default async function getNotionData() {
 
 async function rpc(fnName, body = {}) {
   const res = await fetch(`https://www.notion.so/api/v3/${fnName}`, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "content-type": "application/json"
+      'content-type': 'application/json',
+      accepts: 'application/json',
     },
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
   });
 
   if (res.ok) {
-    return res.json();
+    const body = await res.json();
+    return body;
   } else {
     throw new Error(await getError(res));
   }
 }
 
 async function getError(res) {
-  return `Notion API error (${res.status}) \n${getJSONHeaders(
-    res
-  )}\n ${await getBodyOrNull(res)}`;
+  return `Notion API error (${res.status}) \n${getJSONHeaders(res)}\n ${await getBodyOrNull(res)}`;
 }
 
 function getJSONHeaders(res) {
+  console.log(res);
   return JSON.stringify(res.headers.raw());
 }
 
@@ -125,36 +122,31 @@ function getBodyOrNull(res) {
   }
 }
 
-function queryCollection({
-  collectionId,
-  collectionViewId,
-  loader = {},
-  query = {}
-}) {
+function queryCollection({ collectionId, collectionViewId, loader = {}, query = {} }) {
   const {
     limit = 70,
     loadContentCover = true,
-    type = "table",
-    userLocale = "en",
-    userTimeZone = "Europe/Russia"
+    type = 'table',
+    userLocale = 'en',
+    userTimeZone = 'Europe/Russia',
   } = loader;
 
   const {
     aggregate = [
       {
-        aggregation_type: "count",
-        id: "count",
-        property: "title",
-        type: "title",
-        view_type: "table"
-      }
+        aggregation_type: 'count',
+        id: 'count',
+        property: 'title',
+        type: 'title',
+        view_type: 'table',
+      },
     ],
     filter = [],
-    filter_operator = "and",
-    sort = []
+    filter_operator = 'and',
+    sort = [],
   } = query;
 
-  return rpc("queryCollection", {
+  return rpc('queryCollection', {
     collectionId,
     collectionViewId,
     loader: {
@@ -162,30 +154,24 @@ function queryCollection({
       loadContentCover,
       type,
       userLocale,
-      userTimeZone
+      userTimeZone,
     },
     query: {
       aggregate,
       filter,
       filter_operator,
-      sort
-    }
+      sort,
+    },
   });
 }
 
-function loadPageChunk({
-  pageId,
-  limit = 100,
-  cursor = { stack: [] },
-  chunkNumber = 0,
-  verticalColumns = false
-}) {
-  return rpc("loadPageChunk", {
+function loadPageChunk({ pageId, limit = 100, cursor = { stack: [] }, chunkNumber = 0, verticalColumns = false }) {
+  return rpc('loadPageChunk', {
     pageId,
     limit,
     cursor,
     chunkNumber,
-    verticalColumns
+    verticalColumns,
   });
 }
 
