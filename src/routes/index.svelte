@@ -1,13 +1,39 @@
-<script>
-  const date = new Date();
-  let hello = '';
+<script context="module">
+  export async function preload({ host, params }) {
+    let baseUrl = '';
+    if (!process.browser && process.env.NOW_REGION) {
+      baseUrl = `https://${host}`;
+    }
 
-  if (date.getHours() > 8 && date.getHours() < 18) {
-    hello = 'Have a good day!';
-  } else {
-    hello = 'Have a good night!';
+    const res = await this.fetch(`${baseUrl}/blog.json`);
+    const { notionData, etag } = await res.json();
+    return { ...notionData, etag };
   }
 </script>
+
+<script>
+  export let sections = [];
+</script>
+
+<svelte:head>
+  <title>antky</title>
+</svelte:head>
+
+<div class="container">
+  <div>
+    <p class="nickname glitch" data-text="antky">antky</p>
+    <p class="name">Aleksei Anatskii</p>
+    <p>
+      {#each sections as section}
+        {#if section.type === 'page'}
+          <p>
+            <a href={`/blog/${section.link}`} rel="prefetch">{section.title}</a>
+          </p>
+        {/if}
+      {/each}
+    </p>
+  </div>
+</div>
 
 <style>
   .container {
@@ -218,18 +244,3 @@
     }
   }
 </style>
-
-<svelte:head>
-  <title>antky</title>
-</svelte:head>
-
-<div class="container">
-  <div>
-    <p class="nickname glitch" data-text="antky">antky</p>
-    <p class="name">Aleksei Anatskii</p>
-    <p class="greeting">{hello}</p>
-    <p>
-      <a href="/blog" rel="prefetch">Blog</a>
-    </p>
-  </div>
-</div>

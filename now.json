@@ -5,10 +5,6 @@
     {
       "src": "package.json",
       "use": "now-sapper"
-    },
-    {
-      "src": "src/image.js",
-      "use": "@now/node"
     }
   ]
 }

@@ -1,21 +1,61 @@
 import fetch from 'isomorphic-unfetch';
 
-const PAGE_ID = '8e42a85e-df33-4e21-b767-08185a8964f6';
+export async function getNotionPages(pageId) {
+  const data = await loadPageChunk({ pageId });
+  const blocks = values(data.recordMap.block);
 
-export default async function getNotionData() {
-  const data = await loadPageChunk({ pageId: PAGE_ID });
-  console.log(JSON.stringify(data));
+  const sections = [];
+  for (const block of blocks) {
+    const value = block.value;
+
+    if (value.type === 'page') {
+      if (value.parent_table == 'space') {
+        continue;
+      }
+      const section = {
+        title: value.properties.title,
+        link: value.type === 'page' ? value.id : null,
+        children: [],
+        type: 'page',
+      };
+      console.log(section);
+
+      sections.push(section);
+      continue;
+    }
+  }
+
+  return { sections };
+}
+
+export async function getNotionPageContent(pageId) {
+  const data = await loadPageChunk({ pageId });
   const blocks = values(data.recordMap.block);
 
   const sections = [];
   let meta = {};
-  let currentSection = null;
-
   for (const block of blocks) {
     const value = block.value;
 
-    if (value.type === 'page' || value.type === 'header' || value.type === 'sub_header') {
-      sections.push({ title: value.properties.title, children: [] });
+    if (
+      value.type === 'page' ||
+      value.type === 'header' ||
+      value.type === 'sub_header' ||
+      value.type === 'sub_sub_header'
+    ) {
+      if (value.type === 'page' && value.parent_table == 'space') {
+        continue;
+      }
+      const section = {
+        title: value.properties.title,
+        link: value.type === 'page' ? value.id : null,
+        type: value.type,
+        id: value.id,
+        children: [],
+      };
+      if (value.type === 'page') console.log(value);
+
+      sections.push(section);
       continue;
     }
 
@@ -30,11 +70,27 @@ export default async function getNotionData() {
       };
       section.children.push(child);
     } else if (value.type === 'text') {
-      list = null;
       if (value.properties) {
         section.children.push({
           type: 'text',
           value: value.properties.title,
+        });
+      }
+    } else if (value.type === 'quote') {
+      list = null;
+      if (value.properties) {
+        section.children.push({
+          type: 'quote',
+          value: value.properties.title,
+        });
+      }
+    } else if (value.type === 'code') {
+      list = null;
+      if (value.properties) {
+        section.children.push({
+          type: 'code',
+          value: value.properties.title,
+          language: value.properties.language,
         });
       }
     } else if (value.type === 'bulleted_list') {
@@ -78,9 +134,18 @@ export default async function getNotionData() {
           });
         }
       }
+    } else if (value.type === 'callout') {
+      list = null;
+      console.log(value.properties);
+      if (value.properties) {
+        section.children.push({
+          type: 'callout',
+          value: value.properties.title,
+        });
+      }
     } else {
       list = null;
-      console.log('UNHANDLED', value);
+      console.error('UNHANDLED', value.type, value.properties);
     }
   }
 
@@ -106,11 +171,12 @@ async function rpc(fnName, body = {}) {
 }
 
 async function getError(res) {
-  return `Notion API error (${res.status}) \n${getJSONHeaders(res)}\n ${await getBodyOrNull(res)}`;
+  return `Notion API error (${res.status}) \n${getJSONHeaders(
+    res
+  )}\n ${await getBodyOrNull(res)}`;
 }
 
 function getJSONHeaders(res) {
-  console.log(res);
   return JSON.stringify(res.headers.raw());
 }
 
@@ -122,7 +188,12 @@ function getBodyOrNull(res) {
   }
 }
 
-function queryCollection({ collectionId, collectionViewId, loader = {}, query = {} }) {
+function queryCollection({
+  collectionId,
+  collectionViewId,
+  loader = {},
+  query = {},
+}) {
   const {
     limit = 70,
     loadContentCover = true,
@@ -165,7 +236,13 @@ function queryCollection({ collectionId, collectionViewId, loader = {}, query = 
   });
 }
 
-function loadPageChunk({ pageId, limit = 100, cursor = { stack: [] }, chunkNumber = 0, verticalColumns = false }) {
+function loadPageChunk({
+  pageId,
+  limit = 100,
+  cursor = { stack: [] },
+  chunkNumber = 0,
+  verticalColumns = false,
+}) {
   return rpc('loadPageChunk', {
     pageId,
     limit,
