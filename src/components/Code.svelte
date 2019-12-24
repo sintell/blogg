@@ -6,7 +6,8 @@
 
   let element, formattedCode;
 
-  $: $$props && element && highlightCode();
+  // $$$ are used intentionally, to make markup preprocessor work, I'll take care of this later
+  $: $$$props && element && highlightCode();
 
   async function highlightCode() {
     await tick();
