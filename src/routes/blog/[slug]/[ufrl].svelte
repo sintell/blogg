@@ -1,5 +1,6 @@
 <script context="module">
-  export async function preload({ host, params: { slug } }) {
+  export async function preload({ host, params: { ufrl, slug } }) {
+    console.log(ufrl, slug);
     let baseUrl = '';
     if (!process.browser && process.env.NOW_REGION) {
       baseUrl = `https://${host}`;
@@ -11,14 +12,14 @@
 </script>
 
 <script>
-  import Text from '../../components/Text.svelte';
-  import Title from '../../components/Title.svelte';
-  import Code from '../../components/Code.svelte';
-  import Image from '../../components/Image.svelte';
-  import List from '../../components/List.svelte';
-  import Quote from '../../components/Quote.svelte';
-  import Callout from '../../components/Callout.svelte';
-  import Video from '../../components/Video.svelte';
+  import Text from '../../../components/Text.svelte';
+  import Title from '../../../components/Title.svelte';
+  import Code from '../../../components/Code.svelte';
+  import Image from '../../../components/Image.svelte';
+  import List from '../../../components/List.svelte';
+  import Quote from '../../../components/Quote.svelte';
+  import Callout from '../../../components/Callout.svelte';
+  import Video from '../../../components/Video.svelte';
   import {
     CALLOUT,
     CODE,
@@ -28,7 +29,7 @@
     QUOTE,
     TEXT,
     VIDEO,
-  } from '../../components/sections';
+  } from '../../../components/sections';
 
   export let sections = [],
     meta = {};

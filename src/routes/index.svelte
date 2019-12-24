@@ -28,7 +28,11 @@
       {#each sections as section}
         {#if section.type === 'page'}
           <p>
-            <a href={`/blog/${section.link}`} rel="prefetch">{section.title}</a>
+            <a
+              href={`/blog/${section.link}/${section.title[0][0].replace(' ', '-')}`}
+              rel="prefetch">
+              {section.title}
+            </a>
           </p>
         {/if}
       {/each}
