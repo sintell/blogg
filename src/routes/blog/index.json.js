@@ -22,6 +22,6 @@ export async function get(req, res, next) {
       next();
     }
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
 }

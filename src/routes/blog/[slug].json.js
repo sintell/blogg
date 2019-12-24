@@ -2,7 +2,6 @@ import { getNotionPageContent } from '../../data/notion';
 
 export async function get(req, res, next) {
   try {
-    console.log(req.params.slug);
     const data = await getNotionPageContent(req.params.slug);
     if (data) {
       const etag = require('crypto')
@@ -22,6 +21,6 @@ export async function get(req, res, next) {
       next();
     }
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
 }

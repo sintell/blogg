@@ -18,7 +18,6 @@ export async function getNotionPages(pageId) {
         children: [],
         type: 'page',
       };
-      console.log(section);
 
       sections.push(section);
       continue;
@@ -53,7 +52,6 @@ export async function getNotionPageContent(pageId) {
         id: value.id,
         children: [],
       };
-      if (value.type === 'page') console.log(value);
 
       sections.push(section);
       continue;
