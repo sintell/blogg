@@ -3,7 +3,7 @@
   "description": "TODO",
   "version": "0.0.1",
   "scripts": {
-    "dev": "sapper dev",
+    "dev": "NODE_ENV=development sapper dev",
     "build": "sapper build --legacy",
     "export": "sapper export --legacy",
     "start": "node __sapper__/build",
@@ -25,6 +25,7 @@
     "@babel/plugin-transform-runtime": "^7.7.6",
     "@babel/preset-env": "^7.7.7",
     "@babel/runtime": "^7.7.7",
+    "@minna-ui/preprocess": "^0.35.0",
     "@rollup/plugin-replace": "^2.3.0",
     "babel-plugin-prismjs": "^1.1.1",
     "eslint": "^6.8.0",
