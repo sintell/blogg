@@ -39,7 +39,7 @@
 </svelte:head>
 
 {#each sections as section}
-  <Title pageTitle={section.type === PAGE}>{section.title}</Title>
+  <Title pageTitle={section.type === PAGE} textSections={section.title} />
   {#each section.children as subsection}
     {#if subsection.type === IMAGE}
       <Image {...subsection} />

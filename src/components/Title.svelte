@@ -1,15 +1,17 @@
 <script>
+  import Text from './Text.svelte';
   export let pageTitle = false;
+  export let textSections = [];
 </script>
 
 {#if pageTitle}
   <h1 class="section-page-title">
     <a href="/" class="link">antky.dev/</a>
-    <slot />
+    <Text {textSections} />
   </h1>
 {:else}
   <h2>
-    <slot />
+    <Text {textSections} />
   </h2>
 {/if}
 
