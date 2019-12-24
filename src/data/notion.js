@@ -66,6 +66,7 @@ export async function getNotionPageContent(pageId) {
       list = null;
       const child = {
         type: 'image',
+        caption: value.properties.caption,
         src: `/image.js?url=${encodeURIComponent(value.format.display_source)}`,
       };
       section.children.push(child);
@@ -89,8 +90,8 @@ export async function getNotionPageContent(pageId) {
       if (value.properties) {
         section.children.push({
           type: 'code',
-          value: value.properties.title,
-          language: value.properties.language,
+          value: value.properties.title[0][0],
+          language: value.properties.language[0][0],
         });
       }
     } else if (value.type === 'bulleted_list') {
@@ -136,11 +137,32 @@ export async function getNotionPageContent(pageId) {
       }
     } else if (value.type === 'callout') {
       list = null;
-      console.log(value.properties);
       if (value.properties) {
         section.children.push({
           type: 'callout',
           value: value.properties.title,
+        });
+      }
+    } else if (value.type === 'video') {
+      list = null;
+      // skip this as we cant use src in our app, amazon requires token that we don't have
+      if (value.properties) {
+        const urls = {
+          urls: [
+            {
+              url: value.format.display_source,
+              permissionRecord: {
+                table: 'block',
+                id: value.id,
+              },
+            },
+          ],
+        };
+        const signedUrls = await getSignedFileUrls(urls);
+        section.children.push({
+          type: 'video',
+          caption: value.properties.caption,
+          src: signedUrls.signedUrls[0],
         });
       }
     } else {
@@ -153,6 +175,8 @@ export async function getNotionPageContent(pageId) {
 }
 
 async function rpc(fnName, body = {}) {
+  console.log('do', fnName, body);
+
   const res = await fetch(`https://www.notion.so/api/v3/${fnName}`, {
     method: 'POST',
     headers: {
@@ -163,11 +187,16 @@ async function rpc(fnName, body = {}) {
   });
 
   if (res.ok) {
+    console.log('done', fnName, body);
     const body = await res.json();
     return body;
   } else {
     throw new Error(await getError(res));
   }
+}
+
+async function getSignedFileUrls(urls) {
+  return rpc('getSignedFileUrls', urls);
 }
 
 async function getError(res) {

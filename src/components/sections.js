@@ -1,0 +1,9 @@
+export const CALLOUT = 'callout';
+export const CODE = 'code';
+export const IMAGE = 'image';
+export const LIST = 'list';
+export const PAGE = 'page';
+export const QUOTE = 'quote';
+export const TEXT = 'text';
+export const TITLE = 'title';
+export const VIDEO = 'video';
