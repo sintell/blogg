@@ -29,7 +29,7 @@
         {#if section.type === 'page'}
           <p>
             <a
-              href={`/blog/${section.link}/${section.title[0][0].replace(' ', '-')}`}
+              href={`/blog/${section.link}/${section.title[0][0].replace(/\s/g, '-')}`}
               rel="prefetch">
               {section.title}
             </a>
