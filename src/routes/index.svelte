@@ -6,39 +6,40 @@
     }
 
     const res = await this.fetch(`${baseUrl}/blog.json`);
-    const { notionData, etag } = await res.json();
-    return { ...notionData, etag };
+    const {
+      notionData: { sections, meta },
+    } = await res.json();
+    return { sections, meta };
   }
 </script>
 
 <script>
   import GlitchBlock from '../components/GlichBlock.svelte';
-  export let sections = [];
+  let sections = [];
+  let meta = {};
+  export { sections, meta };
 </script>
 
 <svelte:head>
-  <title>antky</title>
+  <title>{meta.title}</title>
+  <meta name="description" content={meta.meta_description} />
+  <meta name="theme-color" content="#{meta.meta_color}" />
 </svelte:head>
 
-<div class="container">
-  <div>
-    <GlitchBlock nickname="antky" />
-    <p class="name">Aleksei Anatskii</p>
-    <p>
-      {#each sections as section}
-        {#if section.type === 'page'}
-          <p>
-            <a
-              href={`/blog/${section.link}/${section.title[0][0].replace(/\s/g, '-')}`}
-              rel="prefetch">
-              {section.title}
-            </a>
-          </p>
-        {/if}
-      {/each}
-    </p>
-  </div>
-</div>
+<GlitchBlock nickname="antky" />
+<p class="text-center font-sans text-gray-400">Aleksei Anatskii</p>
+<h2>Check my latest blog posts:</h2>
+<ul>
+  {#each sections as section}
+    <li class="font-sans text-lg">
+      <a
+        href={`/blog/${section.link}/${section.title.replace(/\s/g, '-')}`}
+        rel="prefetch">
+        {section.title}
+      </a>
+    </li>
+  {/each}
+</ul>
 
 <style>
   .container {

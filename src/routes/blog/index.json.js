@@ -17,7 +17,7 @@ export async function get(req, res, next) {
       );
       res.setHeader('X-version', etag);
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ notionData: data, etag }));
+      res.end(JSON.stringify({ notionData: data }));
     } else {
       next();
     }
