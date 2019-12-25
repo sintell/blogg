@@ -24,7 +24,7 @@
   <slot />
 </code>
 
-<pre class="language-{language}">
+<pre class="language-{language} font-mono">
   <code class="language-{language}">
     {@html formattedCode}
   </code>
