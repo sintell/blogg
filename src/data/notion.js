@@ -1,39 +1,60 @@
 import fetch from 'isomorphic-unfetch';
-
+import { parseNotionCallout } from './callout';
+import { parseNotionCode } from './code';
+import { parseNotionHeader } from './header';
+import { parseNotionImage } from './image';
+import { groupListItems, parseNotionList } from './list';
+import { parseNotionQuote } from './quote';
+import { parseNotionTable } from './table';
+import { parseNotionText } from './text';
+import { formatNotionSecureUrlRequest, parseNotionVideo } from './video';
 export async function getNotionPages(pageId) {
   const data = await loadPageChunk({ pageId });
   const blocks = values(data.recordMap.block);
+  const META_TABLE_NAME = 'metadata';
+  const ARTICLES_TABLE_NAME = 'articles';
 
-  const sections = [];
+  let sections = [];
+  let meta = {};
+
   for (const block of blocks) {
     const value = block.value;
+    if (value.type === 'collection_view') {
+      const col = await queryCollection({
+        collectionId: value.collection_id,
+        collectionViewId: value.view_ids[0],
+      });
+      const collection = values(col.recordMap.collection)[0];
 
-    if (value.type === 'page') {
-      if (value.parent_table == 'space') {
-        continue;
+      const tableName = collection.value.name[0][0];
+      const tableSchema = collection.value.schema;
+      const collectionId = collection.value.id;
+
+      const tableRows = parseNotionTable(
+        col.recordMap.block,
+        tableSchema,
+        collectionId
+      );
+
+      if (tableName.toLowerCase() === META_TABLE_NAME) {
+        meta = tableRows[0];
       }
-      const section = {
-        title: value.properties.title,
-        link: value.type === 'page' ? value.id : null,
-        children: [],
-        type: 'page',
-      };
 
-      sections.push(section);
-      continue;
+      if (tableName.toLowerCase() === ARTICLES_TABLE_NAME) {
+        sections = tableRows;
+      }
     }
   }
 
-  return { sections };
+  return { sections, meta };
 }
 
 export async function getNotionPageContent(pageId) {
   const data = await loadPageChunk({ pageId });
   const blocks = values(data.recordMap.block);
 
-  const sections = [];
+  let sections = [];
   let meta = {};
-  let list = null;
 
   for (const block of blocks) {
     const value = block.value;
@@ -44,129 +65,68 @@ export async function getNotionPageContent(pageId) {
       value.type === 'sub_header' ||
       value.type === 'sub_sub_header'
     ) {
-      if (value.type === 'page' && value.parent_table == 'space') {
-        continue;
-      }
-      const section = {
-        title: value.properties.title,
-        link: value.type === 'page' ? value.id : null,
-        type: value.type,
-        id: value.id,
-        children: [],
-      };
+      sections.push(parseNotionHeader(value));
+      sections = sections.filter(Boolean);
 
-      sections.push(section);
       continue;
     }
 
     const section = sections[sections.length - 1];
 
     if (value.type === 'image') {
-      list = null;
-      const child = {
-        type: 'image',
-        caption: value.properties.caption,
-        src: `/image.js?url=${encodeURIComponent(value.format.display_source)}`,
-      };
-      section.children.push(child);
+      section.children.push(parseNotionImage(value));
     } else if (value.type === 'text') {
-      if (value.properties) {
-        section.children.push({
-          type: 'text',
-          value: value.properties.title,
-        });
-      }
+      section.children.push(parseNotionText(value));
     } else if (value.type === 'quote') {
-      list = null;
-      if (value.properties) {
-        section.children.push({
-          type: 'quote',
-          value: value.properties.title,
-        });
-      }
+      section.children.push(parseNotionQuote(value));
     } else if (value.type === 'code') {
-      list = null;
-      if (value.properties) {
-        section.children.push({
-          type: 'code',
-          value: value.properties.title[0][0],
-          language: value.properties.language[0][0],
-        });
-      }
+      section.children.push(parseNotionCode(value));
     } else if (value.type === 'bulleted_list') {
-      if (list == null) {
-        list = {
-          type: 'list',
-          children: [],
-        };
-        section.children.push(list);
-      }
-      list.children.push(value.properties.title);
+      section.children.push(parseNotionList(value));
     } else if (value.type === 'collection_view') {
       const col = await queryCollection({
         collectionId: value.collection_id,
         collectionViewId: value.view_ids[0],
       });
-      const table = {};
-      const entries = values(col.recordMap.block).filter(
-        block => block.value && block.value.parent_id === value.collection_id
+      const collection = values(col.recordMap.collection)[0];
+
+      const tableName = collection.value.name[0][0];
+      const tableSchema = collection.value.schema;
+      const collectionId = collection.value.id;
+
+      const tableRows = parseNotionTable(
+        col.recordMap.block,
+        tableSchema,
+        collectionId
       );
-      for (const entry of entries) {
-        if (entry.value.properties) {
-          const props = entry.value.properties;
-
-          // I wonder what `Agd&` is? it seems to be a fixed property
-          // name that refers to the value
-          table[
-            props.title[0][0]
-              .toLowerCase()
-              .trim()
-              .replace(/[ -_]+/, '_')
-          ] = props['Agd&'];
-        }
-
-        if (sections.length === 1) {
-          meta = table;
-        } else {
-          section.children.push({
-            type: 'table',
-            value: table,
-          });
-        }
-      }
+      section.children.push({
+        type: 'table',
+        value: tableRows,
+        name: tableName,
+      });
     } else if (value.type === 'callout') {
-      list = null;
-      if (value.properties) {
-        section.children.push({
-          type: 'callout',
-          value: value.properties.title,
-        });
-      }
+      section.children.push(parseNotionCallout(value));
     } else if (value.type === 'video') {
-      list = null;
-      // skip this as we cant use src in our app, amazon requires token that we don't have
-      if (value.properties) {
-        const urls = {
-          urls: [
-            {
-              url: value.format.display_source,
-              permissionRecord: {
-                table: 'block',
-                id: value.id,
-              },
-            },
-          ],
-        };
-        const signedUrls = await getSignedFileUrls(urls);
-        section.children.push({
-          type: 'video',
-          caption: value.properties.caption,
-          src: signedUrls.signedUrls[0],
-        });
-      }
+      section.children.push(parseNotionVideo(value));
     } else {
-      list = null;
       console.error('UNHANDLED', value.type, value.properties);
+    }
+  }
+
+  for (const section of sections) {
+    section.children = section.children
+      .filter(Boolean)
+      .reduce(groupListItems, []);
+    const videos = section.children.filter(c => c.type === 'video');
+    if (videos.length > 0) {
+      try {
+        const signedUrls = await getSignedFileUrls({
+          urls: videos.map(formatNotionSecureUrlRequest),
+        });
+        videos.forEach(v => (v.src = signedUrls.signedUrls.shift()));
+      } catch (e) {
+        console.error(e);
+      }
     }
   }
 
@@ -240,7 +200,7 @@ function queryCollection({
         view_type: 'table',
       },
     ],
-    filter = [],
+    filter = [{ property: 'title', type: 'title', comparator: 'is_not_empty' }],
     filter_operator = 'and',
     sort = [],
   } = query;
