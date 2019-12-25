@@ -5,15 +5,9 @@
 </script>
 
 {#if wrap}
-  <p class="section-text">
+  <p class="text-lg md:text-base whitespace-pre-wrap">
     <InnerText {textSections} />
   </p>
 {:else}
   <InnerText {textSections} />
 {/if}
-
-<style>
-  .section-text {
-    white-space: pre-wrap;
-  }
-</style>

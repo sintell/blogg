@@ -5,36 +5,14 @@
 </script>
 
 {#if pageTitle}
-  <h1 class="section-page-title">
-    <a href="/" class="link">antky.dev/</a>
+  <h1 class="text-2xl md:text-4xl font-bold mb-10">
+    <a href="/" class="text-base font-normal block md:inline-block md:-ml-20">
+      antky.dev/
+    </a>
     <Text {textSections} />
   </h1>
 {:else}
-  <h2>
+  <h2 class="text-xl md:text-2xl font-bold mt-10 mb-5">
     <Text {textSections} />
   </h2>
 {/if}
-
-<style>
-  h1,
-  h2 {
-    margin-top: 20px;
-  }
-  h1:first-child {
-    margin-bottom: 40px;
-  }
-
-  .section-page-title {
-    left: -74px;
-    position: relative;
-  }
-  .section-page-title > .link {
-    font-size: 14px;
-  }
-
-  @media (min-width: 320px) and (max-width: 1024px) {
-    .section-page-title {
-      left: 0;
-    }
-  }
-</style>

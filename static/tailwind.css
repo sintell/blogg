@@ -1,0 +1,21 @@
+@tailwind base;
+
+a {
+  @apply text-gray-900 underline;
+}
+
+p {
+  @apply my-5 text-gray-800 whitespace-pre-wrap;
+}
+
+@tailwind components;
+@tailwind utilities;
+
+
+.bg-brown-400 {
+  @apply bg-orange-700;
+}
+
+.text-brown-400 {
+  @apply text-orange-700;
+}

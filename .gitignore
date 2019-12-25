@@ -1,3 +1,5 @@
 node_modules
 .vscode
 __sapper__
+yarn-error.log
+static/index.css

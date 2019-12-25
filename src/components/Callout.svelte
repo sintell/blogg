@@ -3,21 +3,10 @@
   export let textSections = [];
 </script>
 
-<p class="section-callout">
-  <Text {textSections} />
-</p>
-
-<style>
-  .section-callout {
-    white-space: pre-wrap;
-    background-color: #ffe6d7;
-    padding: 20px 40px;
-    box-shadow: inset 0 0 3px #655a54;
-
-    position: relative;
-    left: -50%;
-    padding-left: 50%;
-    padding-right: 50%;
-    width: 100%;
-  }
-</style>
+<div
+  class="-mx-5 pl-5 md:-mx-32 md:pl-32 lg:-mx-56 lg:pl-56 bg-yellow-200
+  border-b-4 border-yellow-400">
+  <p class="w-5/6 md:w-full py-4 m-0 text-lg md:text-base">
+    <Text {textSections} />
+  </p>
+</div>

@@ -24,12 +24,20 @@
 
     return [{ text, code: null, args: null, rest: null }];
   }
+
+  function highlight(color) {
+    if (color.endsWith('background')) {
+      return `py-1 bg-${color.split('_')[0]}-400`;
+    }
+
+    return `text-${color}-400`;
+  }
 </script>
 
 {#each textSections as textSection}
   {#each processText(textSection) as { text, code, args, rest }}
     {#if code == 'c'}
-      <code class="inline">
+      <code class="bg-pink-300 text-red-800 text-sm">
         <svelte:self textSections={rest} />
       </code>
     {:else if code == 'a'}
@@ -41,7 +49,7 @@
         <svelte:self textSections={rest} />
       </i>
     {:else if code == 'h'}
-      <span class="highlight-{args}">
+      <span class={highlight(args)}>
         <svelte:self textSections={rest} />
       </span>
     {:else if code == 'b'}
@@ -55,73 +63,3 @@
     {:else if rest === null}{text}{/if}
   {/each}
 {/each}
-
-<style>
-  .inline {
-    background: #ffc0cb;
-    color: #860000;
-  }
-  .highlight-gray {
-    color: gray;
-  }
-  .highlight-brown {
-    color: brown;
-  }
-  .highlight-orange {
-    color: orange;
-  }
-  .highlight-yellow {
-    color: #a79c02;
-  }
-  .highlight-teal {
-    color: teal;
-  }
-  .highlight-blue {
-    color: blue;
-  }
-  .highlight-purple {
-    color: purple;
-  }
-  .highlight-pink {
-    color: pink;
-  }
-  .highlight-red {
-    color: red;
-  }
-  .highlight-gray_background {
-    background-color: gray;
-    color: white;
-  }
-  .highlight-brown_background {
-    background-color: brown;
-    color: white;
-  }
-  .highlight-orange_background {
-    background-color: orange;
-    color: white;
-  }
-  .highlight-yellow_background {
-    background-color: #a79c02;
-    color: white;
-  }
-  .highlight-teal_background {
-    background-color: teal;
-    color: white;
-  }
-  .highlight-blue_background {
-    background-color: blue;
-    color: white;
-  }
-  .highlight-purple_background {
-    background-color: purple;
-    color: white;
-  }
-  .highlight-pink_background {
-    background-color: pink;
-    color: white;
-  }
-  .highlight-red_background {
-    background-color: red;
-    color: white;
-  }
-</style>

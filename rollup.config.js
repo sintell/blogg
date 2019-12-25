@@ -1,4 +1,4 @@
-import { markup, style } from '@minna-ui/preprocess';
+import { markup } from '@minna-ui/preprocess';
 import replace from '@rollup/plugin-replace';
 import babel from 'rollup-plugin-babel';
 import commonjs from 'rollup-plugin-commonjs';
@@ -50,6 +50,17 @@ const babelPlugin = babel({
   ],
 });
 
+const sveltePlugin = (overrides = {}) =>
+  svelte({
+    dev,
+    hydratable: true,
+    emitCss: true,
+    preprocess: {
+      markup: markup(),
+    },
+    ...overrides,
+  });
+
 export default {
   client: {
     input: config.client.input(),
@@ -59,25 +70,16 @@ export default {
         'process.browser': true,
         'process.env.NODE_ENV': JSON.stringify(mode),
       }),
-      svelte({
-        dev,
-        hydratable: true,
-        emitCss: true,
-        preserveComments: true,
-        preserveWhitespace: false,
-        preprocess: {
-          markup: markup(),
-          style: style(),
-        },
-      }),
+      sveltePlugin(),
       resolve({
         browser: true,
         dedupe,
       }),
       commonjs(),
-
       babelPlugin,
-
+      // postcss({
+      //   extract: true,
+      // }),
       !dev &&
         terser({
           module: true,
@@ -95,15 +97,10 @@ export default {
         'process.browser': false,
         'process.env.NODE_ENV': JSON.stringify(mode),
       }),
-      svelte({
+      sveltePlugin({
         generate: 'ssr',
-        dev,
-        preserveComments: true,
-        preserveWhitespace: false,
-        preprocess: {
-          markup: markup(),
-          style: style(),
-        },
+        hydratable: false,
+        emitCss: false,
       }),
       resolve({
         dedupe,
