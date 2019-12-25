@@ -36,6 +36,7 @@
 
 <svelte:head>
   <title>{meta.title}</title>
+  <meta name="description" content={meta.desc} />
 </svelte:head>
 
 {#each sections as section}

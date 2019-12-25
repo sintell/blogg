@@ -51,10 +51,21 @@ export async function getNotionPages(pageId) {
 
 export async function getNotionPageContent(pageId) {
   const data = await loadPageChunk({ pageId });
+  const schema = values(data.recordMap.collection)[0].value.schema;
   const blocks = values(data.recordMap.block);
+  const currentPageCollectionId = blocks
+    .filter(b => b.value.id === pageId)
+    .map(b => b.value.parent_id)[0];
+
+  const meta = parseNotionTable(
+    data.recordMap.block,
+    schema,
+    currentPageCollectionId
+  )[0];
+
+  console.log({ meta: meta });
 
   let sections = [];
-  let meta = {};
 
   for (const block of blocks) {
     const value = block.value;
