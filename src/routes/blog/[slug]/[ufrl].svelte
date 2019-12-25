@@ -37,6 +37,7 @@
 <svelte:head>
   <title>{meta.title}</title>
   <meta name="description" content={meta.desc} />
+  <meta http-equiv="content-language" content={meta.lang} />
 </svelte:head>
 
 {#each sections as section}
