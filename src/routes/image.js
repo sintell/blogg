@@ -11,7 +11,7 @@ export async function get(req, res) {
   res.setHeader('content-type', r.headers.get('content-type'));
   res.setHeader(
     'cache-control',
-    'max-age=100, s-maxage=500, stale-while-revalidate=5000'
+    'max-age=31536000, s-maxage=5000, stale-while-revalidate=50000'
   );
   res.statusCode = 200;
   r.body.pipe(res);
