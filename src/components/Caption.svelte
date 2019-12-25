@@ -4,18 +4,7 @@
 </script>
 
 {#if textSections.length > 0}
-  <p class="caption">
+  <p class="mx-auto my-0 text-sm px-5 py-2 font-sans text-gray-600 bg-gray-200">
     <Text {textSections} />
   </p>
 {/if}
-
-<style>
-  .caption {
-    margin: 0 auto;
-    font-size: 14px;
-    color: #666;
-    background-color: #eee;
-    padding: 2px 6px;
-    white-space: pre-wrap;
-  }
-</style>

@@ -5,7 +5,7 @@
   export let caption = '';
 </script>
 
-<div class="m-auto block">
+<div class="max-w-full lg:max-w-2xl m-auto block">
   <img {src} {alt} />
   <Caption textSections={caption} />
 </div>

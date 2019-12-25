@@ -21,10 +21,12 @@
 	     the current page has one -->
     %sapper.head%
   </head>
-  <body class="overflow-x-hidden">
+  <body>
     <!-- The application will be rendered inside this element,
 	     because `src/client.js` references it -->
-    <div id="sapper" class="w-full md:w-5/6 m-auto p-5 pb-20 md:p-16 lg:p-20">%sapper.html%</div>
+    <div id="sapper" class="bg-white px-5 md:px-16 lg:px-20 pt-5 pb-20 m-auto w-full md:w-5/6 max-w-6xl overflow-x-hidden">
+      %sapper.html%
+    </div>
 
     <!-- Sapper creates a <script> tag containing `src/client.js`
 	     and anything else it needs to hydrate the app and
