@@ -33,6 +33,8 @@ export async function getNotionPageContent(pageId) {
 
   const sections = [];
   let meta = {};
+  let list = null;
+
   for (const block of blocks) {
     const value = block.value;
 
@@ -58,7 +60,6 @@ export async function getNotionPageContent(pageId) {
     }
 
     const section = sections[sections.length - 1];
-    let list = null;
 
     if (value.type === 'image') {
       list = null;
