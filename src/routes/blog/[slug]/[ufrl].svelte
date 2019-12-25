@@ -1,6 +1,5 @@
 <script context="module">
   export async function preload({ host, params: { ufrl, slug } }) {
-    console.log(ufrl, slug);
     let baseUrl = '';
     if (!process.browser && process.env.NOW_REGION) {
       baseUrl = `https://${host}`;
