@@ -6,7 +6,7 @@
 <div
   class="-mx-5 pl-5 md:-mx-32 md:pl-32 lg:-mx-56 lg:pl-56 bg-yellow-200
   border-b-4 border-yellow-400">
-  <p class="w-5/6 md:w-full py-4 m-0 text-lg md:text-base">
+  <p class="w-5/6 md:w-full py-4 m-0">
     <Text {textSections} />
   </p>
 </div>

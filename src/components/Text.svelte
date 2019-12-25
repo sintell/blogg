@@ -5,7 +5,7 @@
 </script>
 
 {#if wrap}
-  <p class="text-lg md:text-base whitespace-pre-wrap">
+  <p class="whitespace-pre-wrap">
     <InnerText {textSections} />
   </p>
 {:else}

@@ -5,7 +5,11 @@ a {
 }
 
 p {
-  @apply my-5 text-gray-800 whitespace-pre-wrap;
+  @apply my-5 text-gray-800 font-serif text-lg whitespace-pre-wrap;
+}
+
+li {
+  @apply text-gray-800 text-lg font-serif whitespace-pre-wrap;
 }
 
 @tailwind components;
