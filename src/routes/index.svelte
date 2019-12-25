@@ -40,23 +40,3 @@
     </li>
   {/each}
 </ul>
-
-<style>
-  .container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-  }
-
-  p {
-    text-align: center;
-    margin: 0 auto;
-    margin: 1em auto;
-  }
-
-  .name {
-    color: #aaa;
-    font-size: 1.1em;
-  }
-</style>
