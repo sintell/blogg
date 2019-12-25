@@ -77,9 +77,6 @@ export default {
       }),
       commonjs(),
       babelPlugin,
-      // postcss({
-      //   extract: true,
-      // }),
       !dev &&
         terser({
           module: true,
