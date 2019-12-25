@@ -62,9 +62,6 @@ export async function getNotionPageContent(pageId) {
     schema,
     currentPageCollectionId
   )[0];
-
-  console.log({ meta: meta });
-
   let sections = [];
 
   for (const block of blocks) {

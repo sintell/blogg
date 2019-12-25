@@ -37,6 +37,7 @@
         rel="prefetch">
         {section.title}
       </a>
+      [{section.lang}]
     </li>
   {/each}
 </ul>
