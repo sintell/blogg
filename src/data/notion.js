@@ -131,7 +131,12 @@ export async function getNotionPageContent(pageId) {
         const signedUrls = await getSignedFileUrls({
           urls: videos.map(formatNotionSecureUrlRequest),
         });
-        videos.forEach(v => (v.src = signedUrls.signedUrls.shift()));
+        videos.forEach(
+          v =>
+            (v.src = `/video?url=${encodeURIComponent(
+              signedUrls.signedUrls.shift()
+            )}`)
+        );
       } catch (e) {
         console.error(e);
       }
