@@ -8,6 +8,8 @@ import { parseNotionQuote } from './quote';
 import { parseNotionTable } from './table';
 import { parseNotionText } from './text';
 import { formatNotionSecureUrlRequest, parseNotionVideo } from './video';
+
+const DATE_COLUMN_TAG = 'H{4i';
 export async function getNotionPages(pageId) {
   const data = await loadPageChunk({ pageId });
   const blocks = values(data.recordMap.block);
@@ -210,7 +212,9 @@ function queryCollection({
     ],
     filter = [{ property: 'title', type: 'title', comparator: 'is_not_empty' }],
     filter_operator = 'and',
-    sort = [],
+    sort = [
+      { type: 'date', property: DATE_COLUMN_TAG, direction: 'descending' },
+    ],
   } = query;
 
   return rpc('queryCollection', {
