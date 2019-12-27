@@ -7,7 +7,6 @@ const ABOUT_EN_PAGE_ID = '457419ef-2f00-4e99-b761-5c3c827688e0';
 export async function get(req, res, next) {
   const pageId =
     req.params.lang === 'ru' ? ABOUT_RU_PAEGE_ID : ABOUT_EN_PAGE_ID;
-  console.log('about', pageId, req.params.lang);
   try {
     const data = await getNotionPageContent(pageId);
     if (data) {

@@ -19,7 +19,6 @@ export function parseNotionTable(blocks, tableSchema, collectionId) {
             .replace(/[\W]/g, '_');
 
           const type = tableSchema[id].type;
-          console.log(type);
           labeled[cleanName] =
             type == 'date' ? entry[id][0][1][0][1] : entry[id][0][0];
         } else {
