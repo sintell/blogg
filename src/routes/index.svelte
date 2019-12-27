@@ -15,9 +15,11 @@
 
 <script>
   import GlitchBlock from '../components/GlichBlock.svelte';
+  import TagList from '../components/TagList.svelte';
   let sections = [];
   let meta = {};
   export { sections, meta };
+  const TAG_DELIM = ',';
 </script>
 
 <svelte:head>
@@ -38,6 +40,9 @@
         {section.title}
       </a>
       [{section.lang}]
+      <div>
+        <TagList items={section.tags.split(TAG_DELIM)} />
+      </div>
     </li>
   {/each}
 </ul>
