@@ -17,7 +17,11 @@ export function parseNotionTable(blocks, tableSchema, collectionId) {
           const cleanName = tableSchema[id].name
             .toLowerCase()
             .replace(/[\W]/g, '_');
-          labeled[cleanName] = entry[id][0][0];
+
+          const type = tableSchema[id].type;
+          console.log(type);
+          labeled[cleanName] =
+            type == 'date' ? entry[id][0][1][0][1] : entry[id][0][0];
         } else {
           labeled[id] = entry[id];
         }
