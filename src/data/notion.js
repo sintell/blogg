@@ -12,39 +12,72 @@ import { formatNotionSecureUrlRequest, parseNotionVideo } from './video';
 const DATE_COLUMN_TAG = 'H{4i';
 export async function getNotionPages(pageId) {
   const data = await loadPageChunk({ pageId });
-  const blocks = values(data.recordMap.block);
+  const collections = values(data.recordMap.collection);
   const META_TABLE_NAME = 'metadata';
   const ARTICLES_TABLE_NAME = 'articles';
 
   let sections = [];
   let meta = {};
 
-  for (const block of blocks) {
-    const value = block.value;
-    if (value.type === 'collection_view') {
-      const col = await queryCollection({
-        collectionId: value.collection_id,
-        collectionViewId: value.view_ids[0],
-      });
-      const collection = values(col.recordMap.collection)[0];
+  for (const collection of collections) {
+    const tableName = collection.value.name[0][0];
+    const tableSchema = collection.value.schema;
+    const collectionId = collection.value.id;
+    const query = {
+      filter: {
+        filters: tableName.toLowerCase() === ARTICLES_TABLE_NAME ? [
+          {
+            filter: {
+              operator: 'is_not_empty',
+            },
+            property: 'title',
+          },
+          {
+            filter: {
+              operator: 'is_not_empty',
+            },
+            property: DATE_COLUMN_TAG,
+          },
+          {
+            filter: {
+              value: {
+                type: 'relative',
+                value: 'today',
+              },
+              operator: 'date_is_on_or_before',
+            },
+            property: DATE_COLUMN_TAG,
+          },
+        ] : [],
+        filter_operator: 'and',
+      },
+      sort: [
+        {
+          type: 'date',
+          property: DATE_COLUMN_TAG,
+          direction: 'descending',
+        },
+      ],
+    };
+    const col = await queryCollection({
+      collectionId: collection.value.id,
+      collectionViewId:
+        data.recordMap.block[collection.value.parent_id].value.view_ids[0],
+      query,
+    });
 
-      const tableName = collection.value.name[0][0];
-      const tableSchema = collection.value.schema;
-      const collectionId = collection.value.id;
+    const tableRows = parseNotionTable(
+      col.recordMap.block,
+      tableSchema,
+      collectionId
+    );
 
-      const tableRows = parseNotionTable(
-        col.recordMap.block,
-        tableSchema,
-        collectionId
-      );
+    if (tableName.toLowerCase() === META_TABLE_NAME) {
+      meta = tableRows[0];
+    }
 
-      if (tableName.toLowerCase() === META_TABLE_NAME) {
-        meta = tableRows[0];
-      }
-
-      if (tableName.toLowerCase() === ARTICLES_TABLE_NAME) {
-        sections = tableRows;
-      }
+    if (tableName.toLowerCase() === ARTICLES_TABLE_NAME) {
+      sections = tableRows;
     }
   }
 
@@ -156,8 +189,8 @@ async function rpc(fnName, body = {}) {
   });
 
   if (res.ok) {
-    console.log('done', fnName, body);
     const body = await res.json();
+    console.log('done', fnName, body);
     return body;
   } else {
     throw new Error(await getError(res));
@@ -210,11 +243,8 @@ function queryCollection({
         view_type: 'table',
       },
     ],
-    filter = [{ property: 'title', type: 'title', comparator: 'is_not_empty' }],
-    filter_operator = 'and',
-    sort = [
-      { type: 'date', property: DATE_COLUMN_TAG, direction: 'descending' },
-    ],
+    filter = { filter_operator: 'and' },
+    sort = [],
   } = query;
 
   return rpc('queryCollection', {
@@ -230,7 +260,6 @@ function queryCollection({
     query: {
       aggregate,
       filter,
-      filter_operator,
       sort,
     },
   });
